@@ -1,7 +1,7 @@
+import os
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-import os
 from models import DubbingRequest
 from ffmpeg_utils import process_video
 
@@ -20,7 +20,7 @@ os.makedirs(STORAGE_DIR, exist_ok=True)
 
 @app.post("/api/dub")
 async def dub_video(file: UploadFile = File(...), voice: str = "default", speed: float = 1.0):
-    input_path = os.path.join(STORAGE_DIR, f"input_{file.filename}")
+    input_path = os.path.join(STORAGE_DIR, file.filename)
     output_path = os.path.join(STORAGE_DIR, f"output_{file.filename}")
     
     with open(input_path, "wb") as buffer:
@@ -28,7 +28,7 @@ async def dub_video(file: UploadFile = File(...), voice: str = "default", speed:
         buffer.write(content)
         
     try:
-        process_video(input_path, output_path, speed)
+        process_video(input_path, output_path, voice, speed)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
         
